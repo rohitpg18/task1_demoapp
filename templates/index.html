@@ -1,0 +1,82 @@
+
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Students Data</title>
+    
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+
+  </head>
+
+
+  <body>
+ <div class="text-center">
+   
+
+        <h1>Students Data | <a href="{% url 'add-student' %}" class="btn btn-success btn-lg">Add Student</a> | {% if request.user %} <a class="btn btn-warning btn-lg" href="/signout">SignOut</a> {% endif %}</h1>
+      
+        
+    </div>
+  </body>
+</html>
+
+
+                <table class="table table-dark">
+                    <thead>
+                    <div class="text-center">
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Phone Number</th>
+                            <th>E-Mail</th>
+                            <th>Action</th>
+                        </tr>
+                    </div>
+                    </thead>
+                    <tbody>
+                            {% for e in s %}
+                        <tr>
+                            <td>{{forloop.counter}}</td>
+                            <td>{{e.name}}</td>
+                            <td>{{e.phone_number}}</td>
+                            <td>{{e.email}}</td>
+                            <td>
+                              <a href="delete-student/{{e.id}}"  class="btn btn-danger btn-sm" >Delete</a>
+                              <a href="update-student/{{e.id}}" class="btn btn-dark btn-sm">View Profile</a>
+                            </td>
+                        </tr>
+                            {% endfor %}
+                    </tbody>
+                </table>
+
+{% if users %}
+
+    <h1 class="text-center my-lg-5">Users List</h1>
+
+    <table class="table table-dark">
+        <thead class="text-center">
+            <tr>
+                <th scope="col">ID</th>
+                <th scope="col">Username</th>
+                <th scope="col">Name</th>
+                <th scope="col">Email</th>
+            </tr>
+        </thead>
+        <tbody class="text-center">
+            {% for u in users %}
+            <tr>
+                <th scope="row">{{u.id}}</th>
+                <td scope="row">{{u.username}}</td>
+                <td scope="row">{{u.first_name}}</td>
+                <td scope="row">{{u.email}}</td>
+            </tr>
+
+            {% endfor %}
+        </tbody>
+    </table>
+
+    {% endif %}

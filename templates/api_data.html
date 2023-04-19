@@ -1,0 +1,607 @@
+{% load static %}
+
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Students Data</title>
+
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    	<!-- Datatable plugin CSS file -->
+	<link rel="stylesheet" href=
+    "https://cdn.datatables.net/1.10.22/css/jquery.dataTables.min.css" />
+    
+        <!-- jQuery library file -->
+        <script type="text/javascript"
+        src="https://code.jquery.com/jquery-3.5.1.js">
+        </script>
+    
+        <!-- Datatable plugin JS library file -->
+        <script type="text/javascript" src=
+    "https://cdn.datatables.net/1.10.22/js/jquery.dataTables.min.js">
+        </script>
+
+</head>
+
+
+
+
+
+<body>
+
+
+    <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #563d7c;">
+        <h3 class="navbar-brand mx-2">Student Management System</h3>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse mx-lg-5" id="navbarNav">
+          <ul class="navbar-nav">
+            <li class="nav-item active">
+              <a class="nav-link" href="{% url 'api' %}">Home <span class="sr-only">(current)</span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href = "{% url 'approve_student' %}" id = 'approve_user'>Student Requests
+                <span class="badge rounded-pill badge-notification bg-danger" id='badge'>
+                </span></a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="#" onclick="logout()">Logout</a>
+            </li>
+          </ul>
+        </div>
+      </nav>
+
+      <div class="text-center my-3">
+        <h3>Students List</h3>
+    </div>
+
+
+
+
+<style>
+    small {
+        color: red;
+    }
+
+    .loader {
+        width: 100%;
+        height: 100vh;
+        position: fixed;
+        top: 0;
+        right: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: #fff;
+        z-index: 99999;
+    }
+
+    .container {
+        height: 500px;
+        width: 500px;
+        background-color: #ffffff;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        top: 50%;
+        border-radius: 0.6em;
+    }
+
+    .rainbow-color {
+        background-color: #ffffff;
+        position: absolute;
+        transform: translate(-50%, -50%);
+        left: 50%;
+        animation: spin 5s infinite;
+        transform-origin: 50% 0;
+    }
+
+    @keyframes spin {
+        30% {
+            transform: translate(-50%, -50%) rotate(180deg);
+        }
+
+        55% {
+            transform: translate(-50%, -50%) rotate(180deg);
+        }
+
+        85% {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+
+        100% {
+            transform: translate(-50%, -50%) rotate(360deg);
+        }
+    }
+
+    .rainbow-color-1 {
+        height: 11.25em;
+        width: 22.5em;
+        border: 1.25em solid #fd004c;
+        border-top: none;
+        top: calc(50% + 5.62em);
+        border-radius: 0 0 11.25em 11.25em;
+        animation-delay: 0.8s;
+    }
+
+    .rainbow-color-2 {
+        height: 10em;
+        width: 20em;
+        border: 1.25em solid #fe9000;
+        border-top: none;
+        top: calc(50% + 5em);
+        border-radius: 0 0 10em 10em;
+        animation-delay: 0.6s;
+    }
+
+    .rainbow-color-3 {
+        height: 8.75em;
+        width: 17.5em;
+        border: 1.25em solid #fff020;
+        border-top: none;
+        top: calc(50% + 4.37em);
+        border-radius: 0 0 8.75em 8.75em;
+        animation-delay: 0.4s;
+    }
+
+    .rainbow-color-4 {
+        height: 7.5em;
+        width: 15em;
+        border: 1.25em solid #3edf4b;
+        border-top: none;
+        top: calc(50% + 3.75em);
+        border-radius: 0 0 7.5em 7.5em;
+        animation-delay: 0.2s;
+    }
+
+    .rainbow-color-5 {
+        height: 6.25em;
+        width: 12.5em;
+        border: 1.25em solid #3363ff;
+        border-top: none;
+        top: calc(50% + 3.12em);
+        border-radius: 0 0 6.25em 6.25em;
+    }
+</style>
+
+
+
+
+<div class="loader" id="loader">
+
+    <div class="container">
+        <div class="rainbow-color rainbow-color-1"></div>
+        <div class="rainbow-color rainbow-color-2"></div>
+        <div class="rainbow-color rainbow-color-3"></div>
+        <div class="rainbow-color rainbow-color-4"></div>
+        <div class="rainbow-color rainbow-color-5"></div>
+    </div>
+
+
+</div>
+
+
+
+
+
+<body>
+    <div class='container'>
+	<!--HTML table with student data-->
+	<table class="display table-striped" style="width:100%">
+		<thead>
+			<tr>
+				<th>Username</th>
+				<th>First Name</th>
+				<th>Last Name</th>
+				<th>Email</th>
+				<th>Phone Number</th>
+				<th>Action</th>
+			</tr>
+		</thead>
+		<tbody id='student-box'>
+            <tr>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+                <td></td>
+            </tr>
+	
+		</tbody> 
+    
+	</table>
+
+    <nav aria-label="Page navigation example">
+        <ul class="pagination my-3">
+          <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+          <li class="page-item"><a class="page-link" href="#">1</a></li>
+          <li class="page-item"><a class="page-link" href="#">2</a></li>
+          <li class="page-item"><a class="page-link" href="#">3</a></li>
+          <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        </ul>
+    </nav>
+</div>
+   
+	
+</body>
+
+
+
+
+
+<!-- Update User -->
+
+<div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1"
+    aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="staticBackdropLabel">Update User</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+
+                <div class="mb-3">
+                    <label for="f_name" class="form-label">First Name</label>
+                    <input type="text" class="form-control" id="f_name" name="f_name"
+                        onkeydown="validate('name',this.id)">
+                    <small id="f_name_validate" class="d-none">Name only allows Alphabets and Maximum length should be 20</small>
+
+                    <input type="hidden" class="form-control" id="id" name="id">
+                </div>
+
+                <div class="mb-3">
+                    <label for="l_name" class="form-label">Last Name</label>
+                    <input type="text" class="form-control" id="l_name" name="l_name"
+                        onkeydown="validate('name',this.id)">
+                    <small id="l_name_validate" class="d-none">Name only allows Alphabets and Maximum length should be 20</small>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="s_email" class="form-label">Email address</label>
+                    <input type="email" class="form-control" id="s_email" name="s_email"
+                        onkeydown="validate('email',this.id)">
+                    <small id="s_email_validate" class="d-none">Invalid Email ID</small>
+                </div>
+
+
+                <div class="mb-3">
+                    <label for="p_number" class="form-label">Phone Number</label>
+                    <input type="tel" class="form-control" id="p_number" name="p_number"
+                        onkeydown="validate('mobile_number',this.id)">
+                    <small id="p_number_validate" class="d-none">Please Enter 10 digit number</small>
+                </div>
+
+
+                <div class="mb-3 form-check" id='active-user'>
+                    <input type="checkbox" class="form-check-input" id='active-status'>
+                    <label class="form-check-label" for="exampleCheck1">Is User Active</label>
+                </div>
+
+
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" onclick="updateStudentDetails()" data-bs-dismiss="modal"
+                    aria-label="Close">Update</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+</body>
+
+</html>
+
+
+
+
+
+<!--<script src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
+<script type='text/javascript' src='script.js'></script> -->
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous">
+</script>
+
+
+
+<script>
+    window.onload =  showStudent(), loading(), showInactiveUsers()
+
+    
+    
+
+    function loading(val) {
+        document.getElementById("loader").style.display = 'none';
+    }
+
+
+
+
+let studentData;
+
+
+    function showStudent() {
+
+        if (localStorage.getItem('token') == null) {
+
+            window.location.replace("{% url 'api_login' %}");
+        }
+
+        let resultBox = document.getElementById('student-box')
+    
+
+        try{
+            $.ajax({
+                type: "get",
+                url: "{% url 'all_student' %}",
+                headers: {
+                    "Authorization": 'Bearer ' + localStorage.getItem('token')
+                },
+                dataType: "json",
+                error: function(xhr, status, error){
+                    window.location.replace("{% url 'api_login' %}");
+                },
+                success: (res) => {
+
+                    studentData = res;
+
+
+    
+                    if (res.length == 1) {
+                        document.getElementById('active-user').style.display = 'none';
+                        document.getElementById('approve_user').style.display = 'none';
+    
+                    } else {
+                        document.getElementById('active-user').style.display = 'block';
+                    }
+    
+    
+    
+                    resultBox.innerHTML = ""
+    
+                    res.forEach(student => {
+    
+    
+    
+                        resultBox.innerHTML += `
+        
+                        <tr>
+                            <td>${student.username}</td>
+                            <td>${student.first_name}</td>
+                            <td>${student.last_name}</td>
+                            <td>${student.email}</td>
+                            <td>${student.student_user.phone_number}</td>
+                            <td>
+                                <button class='btn btn-danger' onclick="deleteStudent(${student.id})">Delete</button>
+                                <button class='btn btn-primary' onclick="updateStudent(${student.id})" data-bs-toggle="modal" data-bs-target="#staticBackdrop">Update</button>
+                            </td>  
+                        </tr>
+
+                        `
+                    })
+    
+                }
+            })
+        }catch(e) {
+            window.location.replace("{% url 'api_login' %}");
+            
+        }
+
+        console.log(studentData)
+
+    }
+
+
+
+
+    function showInactiveUsers() {
+   
+ 
+         try{
+             $.ajax({
+                 type: "get",
+                 url: "{% url 'approve_user' %}",
+                 headers: {
+                     "Authorization": 'Bearer ' + localStorage.getItem('token')
+                 },
+                 dataType: "json",
+                 error: function(xhr, status, error){
+                     window.location.replace("{% url 'api_login' %}");
+                 },
+                 success: (res) => {
+                     
+                     pending_approvals = res.length
+                     document.getElementById("badge").innerHTML = pending_approvals;
+     
+                 }
+             })
+         }catch(e) {
+             window.location.replace("{% url 'api_login' %}");
+             
+         }
+ 
+     }
+
+
+    function deleteStudent(val) {
+        console.log(val)
+
+        $.ajax({
+            type: "post",
+            url: "{% url 'delete' %}",
+            headers: {
+                "Authorization": 'Bearer ' + localStorage.getItem('token')
+            },
+            data: {
+                'id': val
+            },
+            dataType: "json",
+            success: (res) => {
+
+                showStudent()
+            }
+        });
+    }
+
+
+    function updateStudent(val) {
+
+        $.ajax({
+            type: "get",
+            url: "http://127.0.0.1:8000/abc/update-api/" + val,
+            headers: {
+                "Authorization": 'Bearer ' + localStorage.getItem('token')
+            },
+            dataType: "json",
+            success: (res) => {
+
+                document.getElementById('f_name').value = res.first_name
+                document.getElementById('l_name').value = res.last_name
+                document.getElementById('s_email').value = res.email
+                document.getElementById('p_number').value = res.student_user.phone_number
+                document.getElementById('id').value = res.id
+
+                if (res.is_active) {
+                    is_active = document.getElementById('active-status').checked = true
+                } else {
+                    is_active = document.getElementById('active-status').checked = false
+                }
+
+
+            }
+        });
+    }
+
+
+    function updateStudentDetails() {
+
+        first_name = document.getElementById('f_name').value
+        last_name = document.getElementById('l_name').value
+        email = document.getElementById('s_email').value
+        phone_number = document.getElementById('p_number').value
+        val = document.getElementById('id').value
+        is_active = document.getElementById('active-status').checked
+
+
+
+
+        
+
+        $.ajax({
+            type: "post",
+            url: "http://127.0.0.1:8000/abc/update-api/" + val + "/",
+            headers: {
+                "Authorization": 'Bearer ' + localStorage.getItem('token')
+            },
+            data: {
+                'first_name': first_name,
+                "last_name": last_name,
+                "email": email,
+                'is_active': is_active,
+                "phone_number": phone_number
+            },
+            dataType: "json",
+            success: (res) => {
+                showStudent()
+            }
+        });
+    }
+
+
+
+
+    function logout() {
+        localStorage.removeItem("token");
+        window.location.replace("{% url 'api_login' %}");
+    }
+
+
+
+
+    function validate(type, id) {
+
+
+        if (type == "username") {
+
+            var input = document.getElementById(id).value
+
+            if (input.length >= 4 && /^[a-zA-Z0-9]+$/.test(input)) {
+                document.getElementById(id + '_validate').classList.add("d-none");
+                document.getElementById(id).style.border = '1px solid #444';
+
+            } else {
+                document.getElementById(id + '_validate').classList.remove("d-none");
+                document.getElementById(id).style.border = '1px solid red';
+            }
+
+
+
+        } else if (type == "name") {
+
+            var input = document.getElementById(id).value
+
+            if (input.length <= 20 && /^[a-zA-Z]+$/.test(input)) {
+                document.getElementById(id + '_validate').classList.add("d-none");
+                document.getElementById(id).style.border = '1px solid #444';
+
+            } else {
+                document.getElementById(id + '_validate').classList.remove("d-none");
+                document.getElementById(id).style.border = '1px solid red';
+            }
+
+
+        } else if (type == "mobile_number") {
+
+            var input = document.getElementById(id).value
+
+            if (/^\d{9}$/.test(input)) {
+                document.getElementById(id + '_validate').classList.add("d-none");
+                document.getElementById(id).style.border = '1px solid #444';
+            } else {
+                document.getElementById(id + '_validate').classList.remove("d-none");
+                document.getElementById(id).style.border = '1px solid red';
+            }
+
+        } else if (type == "email") {
+
+            var input = document.getElementById(id).value
+
+            if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(input)) {
+                document.getElementById(id + '_validate').classList.add("d-none");
+                document.getElementById(id).style.border = '1px solid #444';
+            } else {
+                document.getElementById(id + '_validate').classList.remove("d-none");
+                document.getElementById(id).style.border = '1px solid red';
+            }
+
+        } else if (type == 'password') {
+
+            var input = document.getElementById(id).value
+
+            let strongPassword = new RegExp('(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[^A-Za-z0-9])(?=.{8,})')
+
+            if (strongPassword.test(input)) {
+                document.getElementById(id + '_validate').classList.add("d-none");
+                document.getElementById(id).style.border = '1px solid #444';
+            } else {
+                document.getElementById(id + '_validate').classList.remove("d-none");
+                document.getElementById(id).style.border = '1px solid red';
+            }
+        }
+
+
+
+
+    }
+</script>
