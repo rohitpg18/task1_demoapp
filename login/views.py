@@ -17,6 +17,9 @@ from django.db.models import Q
 
 from itertools import chain
 
+
+from django.core.paginator import Paginator, EmptyPage
+
 # Views for Rest APIS
 
 # To view all users
@@ -27,21 +30,55 @@ class AllUsersView(APIView):
     
     def get (self, request):
         
+        page_num = request.GET.get('page')
+        
+        if page_num is None:
+            page_num = 1
+        
         if request.user.is_superuser == True and request.user.username == 'admin':
             
             student_users = User.objects.filter(is_superuser = False)
             
+            p = Paginator(student_users, 4)
+            
+            try:
+                student_users = p.page(page_num)
+            except EmptyPage:
+                student_users = p.page(p.num_pages)
+                
             serializer = UserStudentSerializer(student_users, many = True)
             
-            return Response(serializer.data)
+            
+            pagination_info={
+                'current_page':page_num,
+                "has_pre":student_users.has_previous(),
+                "has_next":student_users.has_next(),
+                
+            }
+            
+            return Response({"data":serializer.data,'paginator':pagination_info})
         
         elif request.user.is_superuser == False or request.user.username != 'admin':
             
             student_user = User.objects.filter(id = request.user.id)
             
+            p = Paginator(student_users, 4)
+            
+            try:
+                student_users = p.page(page_num)
+            except EmptyPage:
+                student_users = p.page(p.num_pages)
+            
             serializer = UserStudentSerializer(student_user, many=True)
             
-            return Response(serializer.data)
+            pagination_info={
+                'current_page':page_num,
+                "has_pre":student_users.has_previous(),
+                "has_next":student_users.has_next(),
+                
+            }
+            
+            return Response({"data":serializer.data,'paginator':pagination_info})
         
         
         

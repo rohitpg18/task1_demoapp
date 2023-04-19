@@ -166,6 +166,17 @@
         top: calc(50% + 3.12em);
         border-radius: 0 0 6.25em 6.25em;
     }
+
+
+    .page-item{
+        cursor: pointer;
+    }
+
+    .pagination .page-active .page-link{
+        color: #fff;
+        background-color: #3363ff;
+
+    }
 </style>
 
 
@@ -217,12 +228,7 @@
 	</table>
 
     <nav aria-label="Page navigation example">
-        <ul class="pagination my-3">
-          <li class="page-item"><a class="page-link" href="#">Previous</a></li>
-          <li class="page-item"><a class="page-link" href="#">1</a></li>
-          <li class="page-item"><a class="page-link" href="#">2</a></li>
-          <li class="page-item"><a class="page-link" href="#">3</a></li>
-          <li class="page-item"><a class="page-link" href="#">Next</a></li>
+        <ul class="pagination my-3 d-flex justify-content-end" id="pagination">
         </ul>
     </nav>
 </div>
@@ -316,22 +322,53 @@
 
 
 <script>
-    window.onload =  showStudent(), loading(), showInactiveUsers()
+    window.onload =  showStudent(1), loading(), showInactiveUsers()
+    window.onload = loading()
 
     
     
 
-    function loading(val) {
+    function loading() {
         document.getElementById("loader").style.display = 'none';
     }
 
 
+    function pagination(data){
+
+        var current_page = parseInt(data.current_page)
+
+        pageBox = document.getElementById("pagination");
+        pageBox.innerHTML =""
+
+        if (data.has_pre){
+            pageBox.innerHTML += `
+            <li class="page-item"><a class="page-link" onclick="showStudent(${current_page -1})">Previous</a></li>
+            <li class="page-item"><a class="page-link" onclick="showStudent(${current_page -1})">${current_page -1}</a></li>
+            `
+        }
 
 
-let studentData;
+        if (data.has_pre || data.has_next){
+            pageBox.innerHTML += `
+            <li class="page-item page-active"><a class="page-link" onclick="showStudent(${current_page})">${current_page}</a></li>
+            `
+        }
+
+        if (data.has_next){
+            pageBox.innerHTML += `
+            <li class="page-item"><a class="page-link" onclick="showStudent(${current_page + 1})">${current_page + 1}</a></li>
+            <li class="page-item"><a class="page-link" onclick="showStudent(${current_page + 1})">Next</a></li>
+            `
+        }
 
 
-    function showStudent() {
+        
+
+    }
+
+
+
+    function showStudent(page) {
 
         if (localStorage.getItem('token') == null) {
 
@@ -344,7 +381,7 @@ let studentData;
         try{
             $.ajax({
                 type: "get",
-                url: "{% url 'all_student' %}",
+                url: "{% url 'all_student' %}" + "?page=" + page,
                 headers: {
                     "Authorization": 'Bearer ' + localStorage.getItem('token')
                 },
@@ -354,7 +391,10 @@ let studentData;
                 },
                 success: (res) => {
 
-                    studentData = res;
+
+                    pagination(res.paginator)
+
+                    
 
 
     
@@ -370,7 +410,7 @@ let studentData;
     
                     resultBox.innerHTML = ""
     
-                    res.forEach(student => {
+                    res.data.forEach(student => {
     
     
     
@@ -398,7 +438,7 @@ let studentData;
             
         }
 
-        console.log(studentData)
+    
 
     }
 
@@ -449,7 +489,7 @@ let studentData;
             dataType: "json",
             success: (res) => {
 
-                showStudent()
+                showStudent(1)
             }
         });
     }
@@ -513,7 +553,7 @@ let studentData;
             },
             dataType: "json",
             success: (res) => {
-                showStudent()
+                showStudent(1)
             }
         });
     }
