@@ -39,7 +39,7 @@ class AllUsersView(APIView):
             
             student_users = User.objects.filter(is_superuser = False)
             
-            p = Paginator(student_users, 5)
+            p = Paginator(student_users, 4)
             
             try:
                 student_users = p.page(page_num)
@@ -62,7 +62,7 @@ class AllUsersView(APIView):
             
             student_user = User.objects.filter(id = request.user.id)
             
-            p = Paginator(student_users, 5)
+            p = Paginator(student_users, 4)
             
             try:
                 student_users = p.page(page_num)
